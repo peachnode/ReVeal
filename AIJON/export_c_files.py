@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import re
+import json
 from pathlib import Path
 import pandas as pd
 
@@ -71,10 +72,17 @@ def main():
 
     num_rows = len(df)
     scores_tag = "_".join(args.positive_scores)
-    outdir = Path("raw_code") / f"{scores_tag}_{num_rows}"
+
+    basedir = Path("data") / f"{scores_tag}_{num_rows}"
+    outdir = basedir / "raw_code"
+    ggnn_dir = basedir / "ggnn_input"
+
     outdir.mkdir(parents=True, exist_ok=True)
+    ggnn_dir.mkdir(parents=True, exist_ok=True)
 
     counts = {}
+    file_entries = []
+
     for _, row in df.iterrows():
         score = str(row["score"])
         label = 1 if score in args.positive_scores else 0
@@ -85,7 +93,14 @@ def main():
             code = strip_line_numbers(code)
         base = sanitize_name(extract_function_name(code))
         counts[base] = counts.get(base, 0) + 1
-        (outdir / f"{base}_{counts[base]}_{label}.c").write_text(code, encoding="utf-8")
+        filename = f"{base}_{counts[base]}_{label}.c"
+        (outdir / filename).write_text(code, encoding="utf-8")
+        file_entries.append({"file_name": f"{filename}"})
+
+    (ggnn_dir / "cfg_full_text_files.json").write_text(
+        json.dumps(file_entries, ensure_ascii=False, indent=2),
+        encoding="utf-8"
+    )
 
 if __name__ == "__main__":
     main()

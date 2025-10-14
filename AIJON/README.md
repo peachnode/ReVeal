@@ -1,7 +1,6 @@
 ### Usage
-Generate up to 500 C files from the parquet export:
 
-Indicating which scores are counted as "vulnerable"
+Indicating which scores are counted as "vulnerable" and the number of examples to process:
 ```
 python export_c_files.py export_25-06-05.parquet --positive-scores NOT_HELPFUL UNREACHED SATURATED -n 500
 ```
