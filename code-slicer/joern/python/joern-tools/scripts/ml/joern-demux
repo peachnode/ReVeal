@@ -30,11 +30,11 @@ class Demux(DemuxTool):
 
     def _createOutputDir(self):
         try:
-            os.makedirs(self.args.outputDir + '/data/')
+            os.makedirs(self.outputDir + '/data/')
         except OSError:
             pass
 
-        self.toc = open(self.args.outputDir + '/TOC', 'w')
+        self.toc = open(self.outputDir + '/TOC', 'w')
 
     # @ Override
     def processLines(self):
@@ -53,7 +53,7 @@ class Demux(DemuxTool):
         if curKey in self.keyToFilename:
             filename = self.keyToFilename[curKey]
         else:
-            filename = self.args.outputDir + '/data/' + str(self.currentFileNum)
+            filename = self.outputDir + '/data/' + str(self.currentFileNum)
             self.currentFileNum += 1
             self.keyToFilename[curKey] = filename
             self.toc.write(curKey + '\n')

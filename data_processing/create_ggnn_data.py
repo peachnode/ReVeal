@@ -161,6 +161,19 @@ import warnings
 
 warnings.filterwarnings('ignore')
 
+# Ensure NLTK tokenizers are available (handles both newer and older NLTK)
+try:
+    nltk.data.find("tokenizers/punkt_tab")
+except LookupError:
+    try:
+        nltk.download("punkt_tab", quiet=True)
+    except Exception:
+        try:
+            nltk.data.find("tokenizers/punkt")
+        except LookupError:
+            nltk.download("punkt", quiet=True)
+
+
 
 def symbolic_tokenize(code):
     tokens = nltk.word_tokenize(code)
@@ -380,22 +393,26 @@ def unify_slices(list_of_list_of_slices):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--project', default='chrome_debian')
-    parser.add_argument('--csv', help='normalized csv files to process', default='../data/chrome_debian/parsed/')
-    parser.add_argument('--src', help='source c files to process', default='../data/chrome_debian/raw_code/')
-    parser.add_argument('--wv', default='../data/chrome_debian/raw_code_deb_chro.100')
-    parser.add_argument('--output', default='../data/full_experiment_real_data/chrome_debian/chrome_debian.json')
+    parser.add_argument('--project', required=True)
     args = parser.parse_args()
-    json_file_path = '../data/' + args.project + '_full_data_with_slices.json'
+    json_file_path = 'data/' + args.project + '/ggnn_input/full_data_with_slices.json'
+    wv = 'data/' + args.project + '/Word2Vec/li_et_al_wv'
+    #normalized csv files to process
+    csv = 'data/' + args.project + '/parsed/'
+    #source c files to process
+    src = 'data/' + args.project + '/raw_code/'
+
+    output = 'data/' + args.project + '/ggnn_output/ggnn.json'
+
     data = json.load(open(json_file_path))
-    model = Word2Vec.load(args.wv)
+    model = Word2Vec.load(wv)
     final_data = []
     v, nv, vd_present, syse_present, cg_present, dg_present, cdg_present = 0, 0, 0, 0, 0, 0, 0
     data_shard = 1
     for didx, entry in enumerate(tqdm(data)):
         file_name = entry['file_path'].split('/')[-1]
-        nodes_path = os.path.join(args.csv, file_name, 'nodes.csv')
-        edges_path = os.path.join(args.csv, file_name, 'edges.csv')
+        nodes_path = os.path.join(csv, file_name, 'nodes.csv')
+        edges_path = os.path.join(csv, file_name, 'edges.csv')
         label = int(entry['label'])
         if not os.path.exists(nodes_path) or not os.path.exists(edges_path):
             continue
@@ -442,7 +459,8 @@ def main():
         }
         final_data.append(data_point)
         if len(final_data) == 5000:
-            output_path = args.output + '.shard' + str(data_shard)
+            output_path = output + '.shard' + str(data_shard)
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
             with open(output_path, 'w') as fp:
                 json.dump(final_data, fp)
                 fp.close()
@@ -455,7 +473,8 @@ def main():
           "SySeVr:\t%d\n"
           "Control: %d\tData: %d\tBoth: %d" % \
           (v, nv, vd_present, syse_present, cg_present, dg_present, cdg_present))
-    output_path = args.output + '.shard' + str(data_shard)
+    output_path = output + '.shard' + str(data_shard)
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)  # <-- add this
     with open(output_path, 'w') as fp:
         json.dump(final_data, fp)
         fp.close()

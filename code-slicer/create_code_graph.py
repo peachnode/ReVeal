@@ -208,21 +208,21 @@ if __name__ == '__main__':
     create_graph_from_nodes_and_edges(node_id_to_node, edges=edges, allowed_edge_types=allowed_edge_types)
     # node_indices, node_ids, line_numbers, node_id_to_ln = extract_nodes_with_location_info(nodes)
     # adjacency_list = create_adjacency_list(line_numbers, node_id_to_ln, edges, args.data_flow_only)
-    # create_visual_graph(code, adjacency_list, os.path.join(args.output, file_name), verbose=args.verbose)
+    # create_visual_graph(code, adjacency_list, os.path.join(output, file_name), verbose=args.verbose)
     # combined_graph = combine_control_and_data_adjacents(adjacency_list)
     #
-    # if not os.path.exists(args.output):
-    #     os.mkdir(args.output)
+    # if not os.path.exists(output):
+    #     os.mkdir(output)
     #
     # forward_sliced_lines = create_forward_slice(combined_graph, slice_ln)
-    # forward_output_path = os.path.join(args.output, file_name + '.forward')
+    # forward_output_path = os.path.join(output, file_name + '.forward')
     # fp = open(forward_output_path, 'w')
     # for ln in forward_sliced_lines:
     #     fp.write(code[ln] + '\n')
     # fp.close()
     #
     # backward_sliced_lines = create_backward_slice(combined_graph, slice_ln)
-    # backward_output_path = os.path.join(args.output, file_name + '.backward')
+    # backward_output_path = os.path.join(output, file_name + '.backward')
     # fp = open(backward_output_path, 'w')
     # for ln in backward_sliced_lines:
     #     fp.write(code[ln] + '\n')
