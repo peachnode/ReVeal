@@ -18,4 +18,12 @@ python ../data_processing/create_ggnn_data.py \
   --project NOT_HELPFUL_UNREACHED_SATURATED_500 
 
 ```
-this will create ggnn.json.shard1 
+this will create ggnn.json.shard1
+
+
+```shell
+PROJECT="NOT_HELPFUL_UNREACHED_SATURATED_500" \
+jupyter nbconvert --to notebook --execute ../data_processing/full_data_prep_script.ipynb 
+
+```
+this create full_graph.json and line-ggnn.json

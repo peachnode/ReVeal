@@ -35,7 +35,7 @@ This will generate a file `<data_name>_full_data_with_slices.json` in your data 
 
 2. Run [data_processing/create_ggnn_data.py](data_processing/create_ggnn_data.py) for formatting data into different formats.
 
-3. Update [data_processing/full_data_prep_script.ipynb](data_processing/full_data_prep_script.ipynb) to input to the GGNN.
+3. Update [data_processing/full_data_prep_script.ipynb](data_processing/full_data_prep_script_old.ipynb) to input to the GGNN.
 
 ### Running GGNN. 
 
