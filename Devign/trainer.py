@@ -16,7 +16,7 @@ def evaluate_loss(model, loss_function, num_batches, data_iter, cuda=False):
         all_predictions, all_targets = [], []
         for _ in range(num_batches):
             graph, targets = data_iter()
-            targets = targets.cuda()
+            targets = targets.to(next(model.parameters()).device)
             predictions = model(graph, cuda=True)
             batch_loss = loss_function(predictions, targets)
             _loss.append(batch_loss.detach().cpu().item())
@@ -41,7 +41,8 @@ def evaluate_metrics(model, loss_function, num_batches, data_iter):
         all_predictions, all_targets = [], []
         for _ in range(num_batches):
             graph, targets = data_iter()
-            targets = targets.cuda()
+
+            targets = targets.to(next(model.parameters()).device)
             predictions = model(graph, cuda=True)
             batch_loss = loss_function(predictions, targets)
             _loss.append(batch_loss.detach().cpu().item())
@@ -73,7 +74,7 @@ def train(model, dataset, max_steps, dev_every, loss_function, optimizer, save_p
             model.train()
             model.zero_grad()
             graph, targets = dataset.get_next_train_batch()
-            targets = targets.cuda()
+            targets = targets.to(next(model.parameters()).device)
             predictions = model(graph, cuda=True)
             batch_loss = loss_function(predictions, targets)
             if log_every is not None and (step_count % log_every == log_every - 1):

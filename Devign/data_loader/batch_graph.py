@@ -22,9 +22,33 @@ class BatchGraph:
         self.number_of_nodes += num_new_nodes
         self.num_of_subgraphs += 1
 
+    # def cuda(self, device=None):
+    #     for k in self.graphid_to_nodeids.keys():
+    #         self.graphid_to_nodeids[k] = self.graphid_to_nodeids[k].cuda(device=device)
+
     def cuda(self, device=None):
-        for k in self.graphid_to_nodeids.keys():
-            self.graphid_to_nodeids[k] = self.graphid_to_nodeids[k].cuda(device=device)
+        import torch
+        device = device or torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+        # dict of tensors
+        if hasattr(self, "graphid_to_nodeids") and isinstance(self.graphid_to_nodeids, dict):
+            for k, v in self.graphid_to_nodeids.items():
+                self.graphid_to_nodeids[k] = v.to(device)
+
+        # optional tensors
+        if hasattr(self, "features") and self.features is not None:
+            self.features = self.features.to(device)
+        if hasattr(self, "edge_types") and self.edge_types is not None:
+            self.edge_types = self.edge_types.to(device)
+
+        # optional DGLGraph
+        if hasattr(self, "graph") and self.graph is not None:
+            try:
+                self.graph = self.graph.to(device)
+            except Exception:
+                pass
+
+        return self
 
     def de_batchify_graphs(self, features=None):
         if features is None:
@@ -52,7 +76,7 @@ class GGNNBatchGraph(BatchGraph):
         edge_types = self.graph.edata['etype']
         if cuda:
             self.cuda(device=device)
-            return self.graph, features.cuda(device=device), edge_types.cuda(device=device)
+            return self.graph, features.to(device), edge_types.to(device)
         else:
             return self.graph, features, edge_types
         pass

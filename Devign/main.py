@@ -1,3 +1,5 @@
+import sys, os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import argparse
 import os
 import pickle
@@ -12,6 +14,7 @@ from data_loader.dataset import DataSet
 from modules.model import DevignModel, GGNNSum
 from trainer import train
 from utils import tally_param, debug
+
 
 
 if __name__ == '__main__':
@@ -67,9 +70,10 @@ if __name__ == '__main__':
 
     debug('Total Parameters : %d' % tally_param(model))
     debug('#' * 100)
-    model.cuda()
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model.to(device)
     loss_function = BCELoss(reduction='sum')
     optim = Adam(model.parameters(), lr=0.0001, weight_decay=0.001)
-    train(model=model, dataset=dataset, max_steps=1000000, dev_every=128,
+    train(model=model, dataset=dataset, max_steps=500, dev_every=128,
           loss_function=loss_function, optimizer=optim,
-          save_path=model_dir + '/GGNNSumModel', max_patience=100, log_every=None)
+          save_path=model_dir + '/GGNNSumModel', max_patience=50, log_every=None)
