@@ -53,6 +53,7 @@ python ../data_processing/split_full_graph.py \
 
 
 Run Devign. This will create AIJON/models/NOT_HELPFUL_UNREACHED_SATURATED_500/GGNNSumModel-model.bin.
+Probably the version by Ding (see below) is better?
 ```shell
 python ../Devign/main.py \
     --dataset NOT_HELPFUL_UNREACHED_SATURATED_500 \
@@ -62,5 +63,21 @@ python ../Devign/main.py \
     --graph_tag graph \
     --label_tag targets \
     --feature_size 169
+
+```
+First run with train. Need to move the json files.
+```shell
+cd ..
+python -m DingsDevign.main --dataset NOT_HELPFUL_UNREACHED_SATURATED_500  \
+ --input_dir ./AIJON/data/NOT_HELPFUL_UNREACHED_SATURATED_500/prepared_devign \
+   --feature_size 169 --model_type ggnn --train
+
+```
+then without
+```shell
+cd ..
+python -m DingsDevign.main --dataset NOT_HELPFUL_UNREACHED_SATURATED_500  \
+ --input_dir ./AIJON/data/NOT_HELPFUL_UNREACHED_SATURATED_500/prepared_devign \
+   --feature_size 169 --model_type ggnn --load_model_path iter_195
 
 ```

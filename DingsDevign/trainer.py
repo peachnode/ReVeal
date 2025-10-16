@@ -86,7 +86,7 @@ def save_after_ggnn(model, num_batches, data_iter, file_name):
     with torch.no_grad():
         for _ in range(num_batches):
             graph, targets = data_iter()
-            output = model.output(graph, cuda=True)
+            output = model.output(graph, cuda=False)
             output = list(output.detach().cpu().numpy().astype(float)) # (128, 200)
             targets = targets.detach().cpu().numpy()
             for i in range(len(targets)):
