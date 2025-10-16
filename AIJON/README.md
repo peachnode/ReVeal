@@ -15,22 +15,27 @@ For every function an edges.csv and nodes.csv is created.
 bash run_aijon_joern_parse.sh NOT_HELPFUL_UNREACHED_SATURATED_500
 ```
 
-run extract_slices.ipynb
+run extract_slices.ipynb #check
 ```shell
 PROJECT="NOT_HELPFUL_UNREACHED_SATURATED_500" \
 jupyter nbconvert --to notebook --execute ../data_processing/extract_slices.ipynb 
 
 ```
 
-create word2vec with train_wv_sysevr.ipynb -> need to adapt pathes
+create word2vec with train_wv_sysevr.ipynb
 
 ```shell
-python ../data_processing/create_ggnn_data.py \
+PROJECT="NOT_HELPFUL_UNREACHED_SATURATED_500" \
+jupyter nbconvert --to notebook --execute ../data_processing/train_wv_sysevr.ipynb
+```
+
+create ggnn.json.shard1 #check
+
+```shell
+python ../data_processing/create_ggnn_data.py \ 
   --project NOT_HELPFUL_UNREACHED_SATURATED_500 
 
 ```
-this will create ggnn.json.shard1
-
 
 ```shell
 PROJECT="NOT_HELPFUL_UNREACHED_SATURATED_500" \
