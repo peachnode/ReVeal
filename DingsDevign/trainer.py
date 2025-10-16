@@ -13,14 +13,15 @@ from .utils import debug
 
 
 def evaluate_loss(model, loss_function, num_batches, data_iter, cuda=False):
+    device = torch.device('cpu')
     model.eval()
     with torch.no_grad():
         _loss = []
         all_predictions, all_targets = [], []
         for _ in tqdm(range(num_batches)):
             graph, targets = data_iter()
-            targets = targets.cuda()
-            predictions = model(graph, cuda=True)
+            targets = targets.to(device)
+            predictions = model(graph, cuda=False)
             batch_loss = loss_function(predictions, targets)
             _loss.append(batch_loss.detach().cpu().item())
             predictions = predictions.detach().cpu()
@@ -42,14 +43,15 @@ def evaluate_loss(model, loss_function, num_batches, data_iter, cuda=False):
 
 
 def evaluate_metrics(model, loss_function, num_batches, data_iter):
+    device = torch.device('cpu')
     model.eval()
     with torch.no_grad():
         _loss = []
         all_predictions, all_targets = [], []
         for _ in tqdm(range(num_batches)):
             graph, targets = data_iter()
-            targets = targets.cuda()
-            predictions = model(graph, cuda=True)
+            targets = targets.to(device)
+            predictions = model(graph, cuda=False)
             batch_loss = loss_function(predictions, targets)
             _loss.append(batch_loss.detach().cpu().item())
             predictions = predictions.detach().cpu()
@@ -66,7 +68,8 @@ def evaluate_metrics(model, loss_function, num_batches, data_iter):
             del predictions
             del batch_loss
         model.train()
-        TN, FP, FN, TP = confusion_matrix(all_targets, all_predictions).ravel()
+        cm = confusion_matrix(all_targets, all_predictions, labels=[0, 1])
+        TN, FP, FN, TP = cm.ravel()
         return np.mean(_loss).item(), \
                 accuracy_score(all_targets, all_predictions) * 100, \
                 precision_score(all_targets, all_predictions) * 100, \
@@ -96,6 +99,7 @@ def save_after_ggnn(model, num_batches, data_iter, file_name):
         f.write(json.dumps(lst))
 
 def train(model, dataset, max_steps, dev_every, loss_function, optimizer, save_path, log_every=50, max_patience=5):
+    device = torch.device('cpu')
     debug('Start Training')
     writer = SummaryWriter()
     train_losses = []
@@ -111,8 +115,8 @@ def train(model, dataset, max_steps, dev_every, loss_function, optimizer, save_p
             graph, targets = dataset.get_next_train_batch()
             # end_t = time.time()
             # print("get batch takes:", end_t - start_t)
-            targets = targets.cuda()
-            predictions = model(graph, cuda=True)
+            targets = targets.to(device)
+            predictions = model(graph, cuda=False)
             # end_t_2 = time.time()
             # print("model forward takes:", end_t_2 - end_t)
             batch_loss = loss_function(predictions, targets)

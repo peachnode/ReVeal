@@ -4,7 +4,8 @@ from dgl import DGLGraph
 
 class BatchGraph:
     def __init__(self):
-        self.graph = DGLGraph().to("cuda")
+        device = torch.device('cpu')
+        self.graph = DGLGraph().to(device)
         self.number_of_nodes = 0
         self.graphid_to_nodeids = {}
         self.num_of_subgraphs = 0

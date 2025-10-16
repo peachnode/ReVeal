@@ -13,7 +13,6 @@ from .data_loader.dataset import DataSet
 from .modules.model import DevignModel, GGNNSum
 from .trainer import train, save_after_ggnn
 from .utils import tally_param, debug
-os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
 # python main.py --dataset ImageMagick --input_dir 
 # /space2/ding/dl-vulnerability-detection/data/ggnn_input/ImageMagick 
@@ -23,6 +22,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = ""
 # /space2/ding/ReVeal/data/full_experiment_real_data_processed/chrome_debian/full_graph/v1
 
 if __name__ == '__main__':
+    device = torch.device('cpu')
     torch.manual_seed(1000)
     np.random.seed(1000)
     parser = argparse.ArgumentParser()
@@ -81,32 +81,36 @@ if __name__ == '__main__':
     assert args.feature_size == dataset.feature_size, \
         'Dataset contains different feature vector than argument feature size. ' \
         'Either change the feature vector size in argument, or provide different dataset.'
-    
-    ind_dic = {}
-    for d_type in ["train", "valid", "test"]:
-        ind_lst = []
-        with open(f"../datasets/new_five_by_projects/{d_type}.jsonl", "r") as f:
-            for line in f:
-                item = json.loads(line)
-                ind_lst.append(int(item["idx"]))
-        ind_dic[d_type] = ind_lst
-    example_lst = dataset.train_examples + dataset.valid_examples + dataset.test_examples
-    train_examples, valid_examples, test_examples = [], [], []
-    for example in example_lst:
-        idx = example.id
-        if idx in ind_dic["train"]:
-            train_examples.append(example)
-        elif idx in ind_dic["valid"]:
-            valid_examples.append(example)
-        elif idx in ind_dic["test"]:
-            test_examples.append(example)
-        else:
-            raise ValueError("Index not found in any set")
-    dataset.train_examples = train_examples
-    dataset.valid_examples = valid_examples
-    dataset.test_examples = test_examples
-                
-    sys.exit()
+
+    if os.path.exists("../datasets/new_five_by_projects/train.jsonl"):
+        ind_dic = {}
+        for d_type in ["train", "valid", "test"]:
+            ind_lst = []
+            with open(f"../datasets/new_five_by_projects/{d_type}.jsonl", "r") as f:
+                for line in f:
+                    item = json.loads(line)
+                    ind_lst.append(int(item["idx"]))
+            ind_dic[d_type] = ind_lst
+
+        example_lst = dataset.train_examples + dataset.valid_examples + dataset.test_examples
+        train_examples, valid_examples, test_examples = [], [], []
+        for example in example_lst:
+            idx = example.id
+            if idx in ind_dic["train"]:
+                train_examples.append(example)
+            elif idx in ind_dic["valid"]:
+                valid_examples.append(example)
+            elif idx in ind_dic["test"]:
+                test_examples.append(example)
+            else:
+                raise ValueError("Index not found in any set")
+        dataset.train_examples = train_examples
+        dataset.valid_examples = valid_examples
+        dataset.test_examples = test_examples
+    else:
+        debug("No new_five_by_projects JSONs found — using dataset’s default splits.")
+    print(len(dataset.train_examples))
+
     if args.model_type == 'ggnn':
         model = GGNNSum(input_dim=dataset.feature_size, output_dim=args.graph_embed_size,
                         num_steps=args.num_steps, max_edge_types=dataset.max_edge_type)
@@ -122,12 +126,12 @@ if __name__ == '__main__':
             model.load_state_dict(torch.load(f"models/{args.dataset}/GGNNSumModel-{args.load_model_path}-model.bin"))
         else:
             print("Train from scratch")
-        model.cuda()
+        model.to(device)
         loss_function = BCELoss(reduction='sum')
         optim = Adam(model.parameters(), lr=0.0001, weight_decay=0.001)
-        train(model=model, dataset=dataset, max_steps=1000000, dev_every=dataset.initialize_train_batch(),
+        train(model=model, dataset=dataset, max_steps=500, dev_every=dataset.initialize_train_batch(),
             loss_function=loss_function, optimizer=optim,
-            save_path=model_dir + '/GGNNSumModel-', max_patience=100, log_every=None)
+            save_path=model_dir + '/GGNNSumModel-', max_patience=50, log_every=None)
     else:
         # Below is for save_after_ggnn
         if not args.model_dataset:
@@ -137,7 +141,7 @@ if __name__ == '__main__':
             else:
                 print(f"loading model from: models/{args.dataset}/GGNNSumModel-model.bin")
                 model.load_state_dict(torch.load(f"models/{args.dataset}/GGNNSumModel-model.bin"))
-            model.cuda()
+            model.to(device)
             os.makedirs("output/" + args.dataset, exist_ok=True)
         else:
             if args.load_model_path:

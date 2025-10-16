@@ -57,7 +57,7 @@ Run Devign. This will create AIJON/models/NOT_HELPFUL_UNREACHED_SATURATED_500/GG
 python ../Devign/main.py \
     --dataset NOT_HELPFUL_UNREACHED_SATURATED_500 \
     --input_dir ./data/NOT_HELPFUL_UNREACHED_SATURATED_500/prepared_devign \
-    --model_type devign \
+    --model_type ggnn \
     --node_tag node_features \
     --graph_tag graph \
     --label_tag targets \
