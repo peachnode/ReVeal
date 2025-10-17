@@ -73,11 +73,22 @@ python -m DingsDevign.main --dataset NOT_HELPFUL_UNREACHED_SATURATED_500  \
    --feature_size 169 --model_type ggnn --train
 
 ```
-then without
+then without. this will create output/NOT_HELPFUL_UNREACHED_SATURATED_500/test_GGNNinput_graph.json etc.
 ```shell
 cd ..
 python -m DingsDevign.main --dataset NOT_HELPFUL_UNREACHED_SATURATED_500  \
  --input_dir ./AIJON/data/NOT_HELPFUL_UNREACHED_SATURATED_500/prepared_devign \
    --feature_size 169 --model_type ggnn --load_model_path iter_195
 
+```
+creates Vuld_SySe/representation_learning/results_test/NOT_HELPFUL_UNREACHED_SATURATED_500-ggnn-triplet-loss-layers-1.tsv
+```shell
+cd ../Vuld_SySe/representation_learning
+python api_test.py --dataset NOT_HELPFUL_UNREACHED_SATURATED_500 --features ggnn 
+
+```
+
+```shell
+cd ../Vuld_SySe/representation_learning
+PYTHONPATH=../.. python tsne_generation_AIJON.py
 ```

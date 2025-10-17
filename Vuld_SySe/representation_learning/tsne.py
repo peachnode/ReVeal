@@ -7,13 +7,20 @@ sns.set(rc={'figure.figsize':(11.7,8.27)})
 palette = sns.color_palette("bright", 2)
 import json
 
-def plot_embedding(X_org, y, title=None):
-    X, _, Y, _ = train_test_split(X_org, y, test_size=0.5)
+
+def plot_embedding(X_org, y, title=None, perplexity=30):
+    if len(X_org) > 1 and len(y) > 1:
+        X, _, Y, _ = train_test_split(X_org, y, test_size=0.5)
+    else:
+        X, Y = X_org, y
     X, Y = np.asarray(X), np.asarray(Y)
+    if X.shape[0] <= 1:
+        raise ValueError("t-SNE requires at least two samples to run.")
+    perplexity = max(1, min(perplexity, X.shape[0] - 1))
     # X = X[:10000]
     # Y = Y[:10000]
     # y_v = ['Vulnerable' if yi == 1 else 'Non-Vulnerable' for yi in Y]
-    tsne = manifold.TSNE(n_components=2, init='pca', random_state=0)
+    tsne = manifold.TSNE(n_components=2, init='pca', random_state=0, perplexity=perplexity)
     print('Fitting TSNE!')
     X = tsne.fit_transform(X)
     x_min, x_max = np.min(X, 0), np.max(X, 0)
